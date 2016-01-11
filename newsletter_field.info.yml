@@ -1,0 +1,5 @@
+name: Newsletter field
+type: module
+description: Provides a checkbox field to be used for subscribing to newsletters that can be attached to any entity type form.
+core: 8.x
+package: Fields
