@@ -135,7 +135,13 @@ class Newsletter extends BooleanItem implements FieldItemInterface {
         /* @var NewsletterPluginInterface $newsletter_plugin */
         $newsletter_plugin = $manager->createInstance($newsletter_plugin_id);
 
-        $newsletter_plugin->subscribe($newsletter_data['mail'], $newsletter_data['list_id'], $newsletter_data['additional_data']);
+        $success = $newsletter_plugin->subscribe($newsletter_data['mail'], $newsletter_data['list_id'], $newsletter_data['additional_data']);
+        if ($success) {
+          drupal_set_message(t('You have been subscribed to the newsletter.'));
+        }
+        else {
+          drupal_set_message(t('There was an error while subscribing to the newsletter. Please contact the site administrator.'), 'error');
+        }
       }
     }
     else {
