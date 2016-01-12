@@ -60,6 +60,13 @@ class Newsletter extends BooleanItem implements FieldItemInterface {
       '#description' => t('Please choose which newsletter service you want to use.'),
     );
 
+    $element['newsletter_list_id'] = array(
+      '#type' => 'textfield',
+      '#title' => t('List id'),
+      '#default_value' => $this->getSetting('newsletter_list_id'),
+      '#description' => t('Please input the id of the list (if any) to which the user will be subscribed.'),
+    );
+
     return $element;
   }
 
@@ -71,6 +78,7 @@ class Newsletter extends BooleanItem implements FieldItemInterface {
       'mail_field' => '',
       'newsletter_fields_map' => '',
       'newsletter_service' => '',
+      'newsletter_list_id' => '',
     ) + parent::defaultFieldSettings();
   }
 
@@ -108,6 +116,16 @@ class Newsletter extends BooleanItem implements FieldItemInterface {
           }
         }
 
+        $newsletter_data = array(
+          'list_id' => $this->getSetting('newsletter_list_id'),
+          'mail' => $mail,
+          'additional_data' => $additional_data,
+          'entity' => $entity,
+        );
+        // Give a chance to other modules to alter the data, for example there
+        // may be a different list depending on the language.
+        \Drupal::moduleHandler()->alter('newsletter_field_subscribe', $newsletter_data);
+
         // And finally create the newsletter plugin and subscribe the mail.
         // @todo: is it possible to inject the newsletter manager here?
         /* @var NewsletterManagerInterface $manager */
@@ -117,7 +135,7 @@ class Newsletter extends BooleanItem implements FieldItemInterface {
         /* @var NewsletterPluginInterface $newsletter_plugin */
         $newsletter_plugin = $manager->createInstance($newsletter_plugin_id);
 
-        $newsletter_plugin->subscribe($mail, $additional_data);
+        $newsletter_plugin->subscribe($newsletter_data['mail'], $newsletter_data['list_id'], $newsletter_data['additional_data']);
       }
     }
     else {
